@@ -50,7 +50,59 @@ except ImportError:
 #
 INCLUDE_FILES = []
 
-LONG_DESCRIPTION = ""
+LONG_DESCRIPTION = """About
+-----
+
+pycms is a web content management system based on CherryPy.
+
+Prerequisites
+-------------
+
+Python http://www.python.org
+
+Installation
+------------
+
+Unzip the file, then at the command line run
+
+::
+
+    python setup.py install
+
+Usage
+-----
+
+On the command line, run
+
+::
+
+    python3 pycms.py
+
+Documentation
+-------------
+
+To read the API documentation, open a shell / DOS window, navigate to
+the pycms directory, and run
+
+::
+
+    pydoc pycms
+
+You can create a HTML version using
+
+::
+
+    pydoc -w pycms
+
+License
+-------
+
+pycms is licensed under the GPL. See the file COPYING for details.
+
+Author
+------
+
+Florian Berger"""
 
 # Python 2.x doesn't honour the 'package_dir' and 'package_data' arguments to
 # setup() when building an 'sdist'. Generate MANIFEST.in containing the
@@ -97,7 +149,7 @@ setup(name = PACKAGE,
       author = "Florian Berger",
       author_email = "fberger@florian-berger.de",
       url = "http://florian-berger.de/en/software/pycms",
-      description = PACKAGE + " - DESCRIPTION HERE",
+      description = PACKAGE + " - a web content management system based on CherryPy.",
       long_description = LONG_DESCRIPTION,
       license = "GPL",
       py_modules = [PACKAGE],

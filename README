@@ -4,7 +4,7 @@ README for pycms
 About
 -----
 
-pycms is ADD HERE
+pycms is a web content management system based on CherryPy.
 
 
 Prerequisites
@@ -19,6 +19,14 @@ Installation
 Unzip the file, then at the command line run
 
     python setup.py install
+
+
+Usage
+-----
+
+On the command line, run
+
+    python3 pycms.py
 
 
 Documentation
