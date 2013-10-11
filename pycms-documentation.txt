@@ -1,0 +1,22 @@
+Documentation for pycms
+=======================
+
+pycms is a web content management system based on CherryPy.
+
+Running the pycms Web Server
+----------------------------
+
+To make pycms serve content over an HTTP socket, issue the command
+
+    python pycms.py htmlroot
+
+on the command line. `htmlroot` is a directory containing the data to serve
+from and to save to. If written as above, pycms assumes it to be a local
+subdirectory. You can also give full qualified paths as `/home/user/htmlroot`
+or `C:\htmlroot\`, depending on your operatings system.
+
+You can do the same from a Python environment:
+
+    >>> import pycms
+    >>> pycms.serve("htmlroot")
+    >>>

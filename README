@@ -32,6 +32,10 @@ On the command line, run
 Documentation
 -------------
 
+Usage documentation is in the file
+
+    pycms-documentation.txt
+
 To read the API documentation, open a shell / DOS window, navigate to the
 pycms directory, and run
 
@@ -52,5 +56,3 @@ Author
 ------
 
 Florian Berger <fberger@florian-berger.de>
-
-

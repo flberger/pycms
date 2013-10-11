@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pycms.  If not, see <http://www.gnu.org/licenses/>.
 
-# Work started on 30. Sep 2013.
+# Work started on 30. Sep 2013. This is a rewrite of BBk3 based on a different concept.
 
 import optparse
 import cherrypy
@@ -27,11 +27,18 @@ VERSION = "0.1.0"
 
 class CMS:
     """CMS base class and root of the CherryPy site.
+
+       Attributes:
+
+       CMS.htmlroot
+           A string, holding the root directory to serve from and save to.
     """
 
-    def __init__(self):
+    def __init__(self, htmlroot):
         """Initialise.
         """
+
+        self.htmlroot = htmlroot
 
         self.exposed = True
 
@@ -43,11 +50,30 @@ class CMS:
 
         return "Hello World!"
 
-def main():
-    """Set up and run a pycms instance.
+def serve(htmlroot, config_dict = None):
+    """Serve the CMS from the directory `htmlroot`.
+
+       config_dict, if given, must be a dict suitable for cherrypy.quickstart().
     """
 
-    # Taken from bbk3.run
+    root = CMS(htmlroot)
+
+    config_dict_final = {"/" : {"tools.sessions.on" : True,
+                                "tools.sessions.timeout" : 60}}
+
+    if config_dict is not None:
+
+        config_dict_final.update(config_dict)
+
+    cherrypy.quickstart(root, config = config_dict_final)
+
+    return
+
+def main():
+    """Parse options and configuration and call serve().
+    """
+
+    # Originally taken from bbk3.run
 
     parser = optparse.OptionParser(version = VERSION)
 
@@ -71,11 +97,11 @@ def main():
 
     options, args = parser.parse_args()
 
-    root = CMS()
+    if not len(args):
 
-    config_dict = {"/" : {"tools.sessions.on" : True,
-                          "tools.sessions.timeout" : 60},
-                   "global" : {"server.socket_host" : "0.0.0.0",
+        raise RuntimeError("Please supply a html root directory name as argument")
+
+    config_dict = {"global" : {"server.socket_host" : "0.0.0.0",
                                "server.socket_port" : options.port,
                                "server.thread_pool" : options.threads}}
 
@@ -85,7 +111,7 @@ def main():
 
         cherrypy.engine.autoreload.unsubscribe()
 
-    cherrypy.quickstart(root, config = config_dict)
+    serve(args[0], config_dict)
 
     return
 
