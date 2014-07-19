@@ -22,6 +22,7 @@
 
 import optparse
 import cherrypy
+from sys import stderr
 
 VERSION = "0.1.0"
 
@@ -50,10 +51,13 @@ class CMS:
 
         return "Hello World!"
 
-def serve(htmlroot, config_dict = None):
+def serve(htmlroot, config_dict = None, test = False):
     """Serve the CMS from the directory `htmlroot`.
 
        config_dict, if given, must be a dict suitable for cherrypy.quickstart().
+
+       If test is set to True, the instance will terminate after a
+       short while. This is a feature for automated testing.
     """
 
     root = CMS(htmlroot)
@@ -65,7 +69,48 @@ def serve(htmlroot, config_dict = None):
 
         config_dict_final.update(config_dict)
 
+    exit_thread = None
+
+    if test:
+
+        stderr.write("Testing enabled, terminating after timeout\n")
+
+        def exit_after_timeout():
+
+            import time
+
+            start_time = time.perf_counter()
+
+            # Wait 2 seconds
+            #
+            while time.perf_counter() - start_time < 2.0:
+
+                time.sleep(0.1)
+
+            stderr.write("About to terminate CherryPy engine\n")
+
+            cherrypy.engine.exit()
+
+            return
+
+        import threading
+
+        exit_thread = threading.Thread(target = exit_after_timeout,
+                                       name = "exit_thread")
+
+        stderr.write("Starting exit thread\n")
+
+        exit_thread.start()
+
     cherrypy.quickstart(root, config = config_dict_final)
+
+    if test:
+
+        stderr.write("Waiting for exit thread\n")
+
+        exit_thread.join()
+
+        stderr.write("Exit thread joined\n")
 
     return
 
