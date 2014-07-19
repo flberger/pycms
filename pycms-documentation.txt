@@ -3,8 +3,62 @@ Documentation for pycms
 
 pycms is a web content management system based on CherryPy.
 
+Import
+------
+
+To use the pycms API, first import the pycms module.
+
+    >>> import pycms
+    >>>
+
+
+Initialising files and directories for a new instance
+-----------------------------------------------------
+
+pycms needs a working environment to store the CMS contents in.
+
+This is an ordinary directory, with a subdirectory for templates.
+
+For a new pycms instance, this working environment must be created
+before pycms can be used. Otherwise an exception will be raised when
+trying to run pycms.
+
+    >>> pycms.serve("pycmsroot", test = True)
+    RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.init_environment("pycmsroot")?
+    >>>
+
+The 'test' flag will terminate pycms after a short while, for
+automated testing.
+
+The init_environment() function will take care of creating the
+environment.
+
+    >>> pycms.init_environment("pycmsroot")
+    >>>
+
+There now is a basic environment to work with. Let's take a look:
+
+    >>> import glob
+    >>> glob.glob("pycmsroot/*")
+    ['pycmsroot/index.html', 'pycmsroot/_templates']
+    >>> glob.glob("pycmsroot/_templates/*")
+    ['pycmsroot/_templates/index_template.html']
+    >>>
+
+
 Running the pycms Web Server
 ----------------------------
+
+Once there is a working environment, pycms can serve content from it.
+
+The serve() function runs an HTTP server.
+
+    >>> pycms.serve("pycmsroot", test = True)
+    >>>
+
+
+Command line interface
+----------------------
 
 To make pycms serve content over an HTTP socket, issue the command
 
@@ -14,9 +68,3 @@ on the command line. `htmlroot` is a directory containing the data to serve
 from and to save to. If written as above, pycms assumes it to be a local
 subdirectory. You can also give full qualified paths as `/home/user/htmlroot`
 or `C:\htmlroot\`, depending on your operatings system.
-
-You can do the same from a Python environment:
-
-    >>> import pycms
-    >>> pycms.serve("htmlroot")
-    >>>

@@ -70,9 +70,7 @@ clean:
 	rm -vf `find . -iname '*.pyc'`
 
 commit.txt:
-	# single line because hg diff may return false when there are diffs
-	#
-	hg diff > commit.txt ; nano commit.txt
+	hg diff > commit.txt
 
 commit: commit.txt
 	@echo commit.txt:
