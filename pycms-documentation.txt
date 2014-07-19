@@ -59,6 +59,16 @@ The serve() function runs an HTTP server.
     >>>
 
 
+Deleting a pycms environment
+----------------------------
+
+To do this, simply delete the project folder.
+
+    >>> import shutil
+    >>> shutil.rmtree("pycmsroot")
+    >>>
+
+
 Command line interface
 ----------------------
 

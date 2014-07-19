@@ -23,6 +23,7 @@
 import optparse
 import cherrypy
 from sys import stderr
+import os
 import os.path
 
 VERSION = "0.1.0"
@@ -56,6 +57,47 @@ class CMS:
 
         return "Hello World!"
 
+def init_environment(htmlroot):
+    """Create a working directory consisting of the minimum directory and files necessary to run a pycms instance.
+
+       htmlroot is the path to the directory to be created.
+    """
+
+    os.mkdir(htmlroot)
+
+    with open(os.path.join(htmlroot, "index.html"), "wt") as htmlfile:
+
+        # TODO: This should actually be generated from the first template.
+        #
+        htmlfile.write('''<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+<head>
+    <title>pycms Instance Index</title>
+</head>
+<body>
+    <h1>pycms Instance Index</h1>
+    <p>Welcome to your pycms instance.</p>
+</body>
+</html>''')
+
+    os.mkdir(os.path.join(htmlroot, "_templates"))
+
+    with open(os.path.join(htmlroot, "_templates", "index_template.html"), "wt") as templatefile:
+
+        templatefile.write('''<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+<head>
+    <title>TITLE</title>
+</head>
+<body>
+CONTENT
+</body>
+</html>''')
+
+    return
+        
 def serve(htmlroot, config_dict = None, test = False):
     """Serve the CMS from the directory `htmlroot`.
 
