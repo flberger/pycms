@@ -23,6 +23,7 @@
 import optparse
 import cherrypy
 from sys import stderr
+import os.path
 
 VERSION = "0.1.0"
 
@@ -38,6 +39,10 @@ class CMS:
     def __init__(self, htmlroot):
         """Initialise.
         """
+
+        if not os.path.isdir(htmlroot):
+
+            raise RuntimeError("Working environment directory '{0}' not found. Did you run pycms.init_environment(\"{0}\")?".format(htmlroot))
 
         self.htmlroot = htmlroot
 

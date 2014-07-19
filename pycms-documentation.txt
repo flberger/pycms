@@ -24,6 +24,8 @@ before pycms can be used. Otherwise an exception will be raised when
 trying to run pycms.
 
     >>> pycms.serve("pycmsroot", test = True)
+    Traceback (most recent call last):
+    ...
     RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.init_environment("pycmsroot")?
     >>>
 
