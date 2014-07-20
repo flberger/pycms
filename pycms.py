@@ -20,11 +20,14 @@
 
 # Work started on 30. Sep 2013. This is a rewrite of BBk3 based on a different concept.
 
+# TODO: parse a single command line command for module-level functions.
+
 import optparse
 import cherrypy
 from sys import stderr
 import os
 import os.path
+import json
 
 VERSION = "0.1.0"
 
@@ -65,7 +68,7 @@ def init_environment(htmlroot):
 
     os.mkdir(htmlroot)
 
-    with open(os.path.join(htmlroot, "index.html"), "wt") as htmlfile:
+    with open(os.path.join(htmlroot, "index.html"), "wt", encoding = "utf8") as htmlfile:
 
         # TODO: This should actually be generated from the first template.
         #
@@ -83,7 +86,7 @@ def init_environment(htmlroot):
 
     os.mkdir(os.path.join(htmlroot, "_templates"))
 
-    with open(os.path.join(htmlroot, "_templates", "index_template.html"), "wt") as templatefile:
+    with open(os.path.join(htmlroot, "_templates", "index_template.html"), "wt", encoding = "utf8") as templatefile:
 
         templatefile.write('''<!DOCTYPE html>
 <html>
@@ -95,6 +98,11 @@ def init_environment(htmlroot):
 CONTENT
 </body>
 </html>''')
+
+    with open(os.path.join(htmlroot, "_uri_template_map.json"), "wt", encoding = "utf8") as mapfile:
+
+        mapfile.write(json.dumps({"/index.html": "/_templates/index_template.html"},
+                                 ensure_ascii = False))
 
     return
         
