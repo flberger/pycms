@@ -26,16 +26,16 @@ trying to run pycms.
     >>> pycms.serve("pycmsroot", test = True)
     Traceback (most recent call last):
     ...
-    RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.init_environment("pycmsroot")?
+    RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.envinit("pycmsroot")?
     >>>
 
 The 'test' flag will terminate pycms after a short while, for
 automated testing.
 
-The init_environment() function will take care of creating the
+The envinit() function will take care of creating the
 environment.
 
-    >>> pycms.init_environment("pycmsroot")
+    >>> pycms.envinit("pycmsroot")
     >>>
 
 There now is a basic environment to work with. Let's take a look:

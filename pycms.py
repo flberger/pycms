@@ -30,6 +30,8 @@ import os.path
 import json
 
 VERSION = "0.1.0"
+COMMAND_LINE_COMMANDS = []
+CONFIG_DICT = {}
 
 class CMS:
     """CMS base class and root of the CherryPy site.
@@ -46,7 +48,7 @@ class CMS:
 
         if not os.path.isdir(htmlroot):
 
-            raise RuntimeError("Working environment directory '{0}' not found. Did you run pycms.init_environment(\"{0}\")?".format(htmlroot))
+            raise RuntimeError("Working environment directory '{0}' not found. Did you run pycms.envinit(\"{0}\")?".format(htmlroot))
 
         self.htmlroot = htmlroot
 
@@ -60,7 +62,20 @@ class CMS:
 
         return "Hello World!"
 
-def init_environment(htmlroot):
+# My first useful decorator, if I remember correctly.
+#
+def command_line_function(func):
+    """Register the name of the function given as a command line command.
+    """
+
+    stderr.write("Registering '{}' as a command line command\n".format(func.__name__))
+
+    COMMAND_LINE_COMMANDS.append(func.__name__)
+
+    return func
+
+@command_line_function
+def envinit(htmlroot):
     """Create a working directory consisting of the minimum directory and files necessary to run a pycms instance.
 
        htmlroot is the path to the directory to be created.
@@ -105,11 +120,10 @@ CONTENT
                                  ensure_ascii = False))
 
     return
-        
-def serve(htmlroot, config_dict = None, test = False):
-    """Serve the CMS from the directory `htmlroot`.
 
-       config_dict, if given, must be a dict suitable for cherrypy.quickstart().
+@command_line_function
+def serve(htmlroot, test = False):
+    """Serve the CMS from the directory `htmlroot`.
 
        If test is set to True, the instance will terminate after a
        short while. This is a feature for automated testing.
@@ -120,9 +134,7 @@ def serve(htmlroot, config_dict = None, test = False):
     config_dict_final = {"/" : {"tools.sessions.on" : True,
                                 "tools.sessions.timeout" : 60}}
 
-    if config_dict is not None:
-
-        config_dict_final.update(config_dict)
+    config_dict_final.update(CONFIG_DICT)
 
     exit_thread = None
 
@@ -175,7 +187,8 @@ def main():
 
     # Originally taken from bbk3.run
 
-    parser = optparse.OptionParser(version = VERSION)
+    parser = optparse.OptionParser(version = VERSION,
+                                   usage = "Usage: %prog [options] command [htmlroot]")
 
     parser.add_option("-p", "--port",
                       action = "store",
@@ -197,21 +210,49 @@ def main():
 
     options, args = parser.parse_args()
 
-    if not len(args):
-
-        raise RuntimeError("Please supply a html root directory name as argument")
-
-    config_dict = {"global" : {"server.socket_host" : "0.0.0.0",
-                               "server.socket_port" : options.port,
-                               "server.thread_pool" : options.threads}}
-
     # Conditionally turn off Autoreloader
     #
     if not options.autoreload:
 
         cherrypy.engine.autoreload.unsubscribe()
 
-    serve(args[0], config_dict)
+    CONFIG_DICT["global"]= {"server.socket_host" : "0.0.0.0",
+                            "server.socket_port" : options.port,
+                            "server.thread_pool" : options.threads}
+
+    if not len(args):
+
+        parser.print_help()
+
+        raise SystemExit
+
+    if not args[0] in COMMAND_LINE_COMMANDS:
+
+        # My first generator comprehension, saving list memory. :-)
+        #
+        commands = ", ".join(("'{}'".format(item) for item in COMMAND_LINE_COMMANDS))
+        
+        raise RuntimeError("Unknown command '{}'. Please use one of {}.".format(args[0],
+                                                                                commands))
+
+    # Filter commands that require a parameter
+    #
+    if args[0] in ("envinit", "serve"):
+
+        if len(args) < 2:
+
+            raise RuntimeError("Please specify the root directory containing the working environment for command '{}'.".format(args[0]))
+
+        # Now for some Python magic.
+        # Call the function given as command on the command line.
+        #
+        globals()[args[0]](args[1])
+
+    else:
+
+        # Call without parameters.
+        #
+        globals()[args[0]]()
 
     return
 
