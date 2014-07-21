@@ -59,6 +59,44 @@ The serve() function runs an HTTP server.
     >>>
 
 
+pycms data representation
+-------------------------
+
+When preparing to serve, pymcs parses the working environment and
+creates an internal data structure. This is done by the
+pycms.envparse() function. This function expects the path to the
+working enviromnemt and a pycms.CMS instance as input. For
+demonstration purposes, we will use a dummy object here, bypassing
+pycms.CMS.__init__().
+
+    >>> class DummyCMS:
+    ...     pass
+    ...
+    >>> dummy_cms = DummyCMS()
+    >>> dummy_cms.__dict__["__class__"] = pycms.CMS
+    >>> pycms.envparse("pycmsroot", dummy_cms)
+    >>>
+
+The CMS instance will be populated by the parsing results. In this
+case, only the single root page is created, which can be obtained by
+calling the CMS instance as a method. This yields the default page
+created by pycms.envinit() above.
+
+    >>> dummy_cms()
+    '''<!DOCTYPE html>
+    <html>
+    <meta charset="utf-8"/>
+    <head>
+        <title>pycms Instance Index</title>
+    </head>
+    <body>
+        <h1>pycms Instance Index</h1>
+        <p>Welcome to your pycms instance.</p>
+    </body>
+    </html>'''
+    >>>
+
+    
 Deleting a pycms environment
 ----------------------------
 

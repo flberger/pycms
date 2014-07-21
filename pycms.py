@@ -121,6 +121,39 @@ CONTENT
 
     return
 
+def envparse(htmlroot, cms_instance):
+    """Parse the working environment in directory 'htmlroot', and populate the CMS instance 'cms_instance' with the results.
+    """
+
+    # TODO: This is a demo, catching only the index page. Replace with tree parser.
+    # TODO: parse URI template mapping
+
+    page_content = None
+
+    with open(os.path.join(htmlroot, "index.html"), "rt", encoding = "utf8") as page_file:
+
+        page_content = page_file.read()
+
+    # Hand the string over at function definition time, which stores a
+    # reference to the current value. Using the variable at execution
+    # time would point to the value present then.
+    #
+    def return_page(self, return_value = page_content):
+
+        return return_value
+
+    # Expose for CherryPy
+    #
+    return_page.exposed = True
+
+    # "Instances of arbitrary classes can be made callable by defining
+    # a __call__() method in their class."
+    # python-docs-3.3.0/html/reference/datamodel.html#types
+    #
+    cms_instance.__class__.__call__ = return_page
+
+    return
+
 @command_line_function
 def serve(htmlroot, test = False):
     """Serve the CMS from the directory `htmlroot`.
