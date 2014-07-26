@@ -29,7 +29,7 @@ PACKAGE = "pycms"
 #
 from distutils.core import setup
 
-SCRIPTS = ["pycms.py"]
+SCRIPTS = [os.path.join("pycms", "__init__.py")]
 
 EXECUTABLES = []
 
@@ -152,8 +152,8 @@ setup(name = PACKAGE,
       description = PACKAGE + " - a web content management system based on CherryPy.",
       long_description = LONG_DESCRIPTION,
       license = "GPL",
-      py_modules = [PACKAGE],
-      packages = [],
+      py_modules = [],
+      packages = [PACKAGE],
       requires = [],
       provides = [PACKAGE],
       scripts = SCRIPTS,

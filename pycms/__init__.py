@@ -20,10 +20,7 @@
 
 # Work started on 30. Sep 2013. This is a rewrite of BBk3 based on a different concept.
 
-# TODO: parse a single command line command for module-level functions.
-
 import optparse
-import cherrypy
 from sys import stderr
 import os
 import os.path
@@ -31,36 +28,6 @@ import json
 
 VERSION = "0.1.0"
 COMMAND_LINE_COMMANDS = []
-CONFIG_DICT = {}
-
-class CMS:
-    """CMS base class and root of the CherryPy site.
-
-       Attributes:
-
-       CMS.htmlroot
-           A string, holding the root directory to serve from and save to.
-    """
-
-    def __init__(self, htmlroot):
-        """Initialise.
-        """
-
-        if not os.path.isdir(htmlroot):
-
-            raise RuntimeError("Working environment directory '{0}' not found. Did you run pycms.envinit(\"{0}\")?".format(htmlroot))
-
-        self.htmlroot = htmlroot
-
-        self.exposed = True
-
-        return
-
-    def __call__(self):
-        """Called by CherryPy to render this object.
-        """
-
-        return "Hello World!"
 
 # My first useful decorator, if I remember correctly.
 #
@@ -118,99 +85,6 @@ CONTENT
 
         mapfile.write(json.dumps({"/index.html": "/_templates/index_template.html"},
                                  ensure_ascii = False))
-
-    return
-
-def envparse(htmlroot, cms_instance):
-    """Parse the working environment in directory 'htmlroot', and populate the CMS instance 'cms_instance' with the results.
-    """
-
-    # TODO: This is a demo, catching only the index page. Replace with tree parser.
-    # TODO: parse URI template mapping
-
-    page_content = None
-
-    with open(os.path.join(htmlroot, "index.html"), "rt", encoding = "utf8") as page_file:
-
-        page_content = page_file.read()
-
-    # Hand the string over at function definition time, which stores a
-    # reference to the current value. Using the variable at execution
-    # time would point to the value present then.
-    #
-    def return_page(self, return_value = page_content):
-
-        return return_value
-
-    # Expose for CherryPy
-    #
-    return_page.exposed = True
-
-    # "Instances of arbitrary classes can be made callable by defining
-    # a __call__() method in their class."
-    # python-docs-3.3.0/html/reference/datamodel.html#types
-    #
-    cms_instance.__class__.__call__ = return_page
-
-    return
-
-@command_line_function
-def serve(htmlroot, test = False):
-    """Serve the CMS from the directory `htmlroot`.
-
-       If test is set to True, the instance will terminate after a
-       short while. This is a feature for automated testing.
-    """
-
-    root = CMS(htmlroot)
-
-    config_dict_final = {"/" : {"tools.sessions.on" : True,
-                                "tools.sessions.timeout" : 60}}
-
-    config_dict_final.update(CONFIG_DICT)
-
-    exit_thread = None
-
-    if test:
-
-        stderr.write("Testing enabled, terminating after timeout\n")
-
-        def exit_after_timeout():
-
-            import time
-
-            start_time = time.perf_counter()
-
-            # Wait 2 seconds
-            #
-            while time.perf_counter() - start_time < 2.0:
-
-                time.sleep(0.1)
-
-            stderr.write("About to terminate CherryPy engine\n")
-
-            cherrypy.engine.exit()
-
-            return
-
-        import threading
-
-        exit_thread = threading.Thread(target = exit_after_timeout,
-                                       name = "exit_thread")
-
-        stderr.write("Starting exit thread\n")
-
-        exit_thread.start()
-
-    cherrypy.quickstart(root, config = config_dict_final)
-
-    if test:
-
-        stderr.write("Waiting for exit thread\n")
-
-        exit_thread.join()
-
-        stderr.write("Exit thread joined\n")
 
     return
 

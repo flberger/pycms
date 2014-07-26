@@ -6,9 +6,12 @@ pycms is a web content management system based on CherryPy.
 Import
 ------
 
-To use the pycms API, first import the pycms module.
+To use the pycms API, first import the pycms modules.
 
     >>> import pycms
+    >>> import pycms.create
+    >>> import pycms.edit
+    >>> import pycms.serve
     >>>
 
 
@@ -23,7 +26,7 @@ For a new pycms instance, this working environment must be created
 before pycms can be used. Otherwise an exception will be raised when
 trying to run pycms.
 
-    >>> pycms.serve("pycmsroot", test = True)
+    >>> pycms.serve.serve("pycmsroot", test = True)
     Traceback (most recent call last):
     ...
     RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.envinit("pycmsroot")?
@@ -55,7 +58,7 @@ Once there is a working environment, pycms can serve content from it.
 
 The serve() function runs an HTTP server.
 
-    >>> pycms.serve("pycmsroot", test = True)
+    >>> pycms.serve.serve("pycmsroot", test = True)
     >>>
 
 
@@ -73,8 +76,8 @@ pycms.CMS.__init__().
     ...     pass
     ...
     >>> dummy_cms = DummyCMS()
-    >>> dummy_cms.__dict__["__class__"] = pycms.CMS
-    >>> pycms.envparse("pycmsroot", dummy_cms)
+    >>> dummy_cms.__dict__["__class__"] = pycms.serve.CMS
+    >>> pycms.serve.envparse("pycmsroot", dummy_cms)
     >>>
 
 The CMS instance will be populated by the parsing results. In this
@@ -83,17 +86,7 @@ calling the CMS instance as a method. This yields the default page
 created by pycms.envinit() above.
 
     >>> dummy_cms()
-    '''<!DOCTYPE html>
-    <html>
-    <meta charset="utf-8"/>
-    <head>
-        <title>pycms Instance Index</title>
-    </head>
-    <body>
-        <h1>pycms Instance Index</h1>
-        <p>Welcome to your pycms instance.</p>
-    </body>
-    </html>'''
+    '<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>pycms Instance Index</title>\n</head>\n<body>\n    <h1>pycms Instance Index</h1>\n    <p>Welcome to your pycms instance.</p>\n</body>\n</html>'
     >>>
 
     

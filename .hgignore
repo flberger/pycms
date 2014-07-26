@@ -4,3 +4,5 @@ syntax: glob
 *.rst
 dist/
 MANIFEST*
+TODO*
+*~
