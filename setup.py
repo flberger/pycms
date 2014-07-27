@@ -29,7 +29,7 @@ PACKAGE = "pycms"
 #
 from distutils.core import setup
 
-SCRIPTS = [os.path.join("pycms", "__init__.py")]
+SCRIPTS = ["pycmscmd.py"]
 
 EXECUTABLES = []
 
@@ -162,4 +162,3 @@ setup(name = PACKAGE,
       options = {"build_exe" :
                  {"include_files" : INCLUDE_FILES}
                 })
-

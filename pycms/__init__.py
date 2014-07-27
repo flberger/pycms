@@ -20,14 +20,13 @@
 
 # Work started on 30. Sep 2013. This is a rewrite of BBk3 based on a different concept.
 
-import optparse
 from sys import stderr
 import os
 import os.path
 import json
 
 VERSION = "0.1.0"
-COMMAND_LINE_COMMANDS = []
+COMMAND_LINE_COMMANDS = {}
 
 # My first useful decorator, if I remember correctly.
 #
@@ -37,7 +36,7 @@ def command_line_function(func):
 
     stderr.write("Registering '{}' as a command line command\n".format(func.__name__))
 
-    COMMAND_LINE_COMMANDS.append(func.__name__)
+    COMMAND_LINE_COMMANDS[func.__name__] = func
 
     return func
 
@@ -87,82 +86,3 @@ CONTENT
                                  ensure_ascii = False))
 
     return
-
-def main():
-    """Parse options and configuration and call serve().
-    """
-
-    # Originally taken from bbk3.run
-
-    parser = optparse.OptionParser(version = VERSION,
-                                   usage = "Usage: %prog [options] command [htmlroot]")
-
-    parser.add_option("-p", "--port",
-                      action = "store",
-                      type = "int",
-                      default = 8000,
-                      help = "The port to listen on. Default: 8000")
-
-    parser.add_option("-t", "--threads",
-                      action = "store",
-                      type = "int",
-                      default = 10,
-                      help = "The number of worker threads to start. Default: 10")
-
-    parser.add_option("-a", "--autoreload",
-                      action = "store_true",
-                      dest = "autoreload",
-                      default = False,
-                      help = "Turn on CherryPy's auto reloading feature. Default: Off.")
-
-    options, args = parser.parse_args()
-
-    # Conditionally turn off Autoreloader
-    #
-    if not options.autoreload:
-
-        cherrypy.engine.autoreload.unsubscribe()
-
-    CONFIG_DICT["global"]= {"server.socket_host" : "0.0.0.0",
-                            "server.socket_port" : options.port,
-                            "server.thread_pool" : options.threads}
-
-    if not len(args):
-
-        parser.print_help()
-
-        raise SystemExit
-
-    if not args[0] in COMMAND_LINE_COMMANDS:
-
-        # My first generator comprehension, saving list memory. :-)
-        #
-        commands = ", ".join(("'{}'".format(item) for item in COMMAND_LINE_COMMANDS))
-        
-        raise RuntimeError("Unknown command '{}'. Please use one of {}.".format(args[0],
-                                                                                commands))
-
-    # Filter commands that require a parameter
-    #
-    if args[0] in ("envinit", "serve"):
-
-        if len(args) < 2:
-
-            raise RuntimeError("Please specify the root directory containing the working environment for command '{}'.".format(args[0]))
-
-        # Now for some Python magic.
-        # Call the function given as command on the command line.
-        #
-        globals()[args[0]](args[1])
-
-    else:
-
-        # Call without parameters.
-        #
-        globals()[args[0]]()
-
-    return
-
-if __name__ == "__main__":
-
-    main()
