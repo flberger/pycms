@@ -82,7 +82,7 @@ CONTENT
 
     with open(os.path.join(htmlroot, "_uri_template_map.json"), "wt", encoding = "utf8") as mapfile:
 
-        mapfile.write(json.dumps({"/index.html": "/_templates/index_template.html"},
+        mapfile.write(json.dumps({"/": "/_templates/index_template.html"},
                                  ensure_ascii = False))
 
     return

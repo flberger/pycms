@@ -66,10 +66,51 @@ To add a template, drop it into the '_templates' folder.
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
     >>>
 
+
 Creating pages based on templates
 ---------------------------------
 
-TODO
+pycms pages are tied to an URI and based on a template. To create a
+new page, all of these must be given, along with the environment.
+
+    >>> pycms.create.page("pycmsroot", "/test", "new_template.html")
+    >>>
+
+Any trailing URI slash will be stripped before creating the page.
+"/test/" and "/test" refer to the same object, though.
+
+    >>> pycms.create.page("pycmsroot", "/test/", "new_template.html")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: URI "/test/" can not be created because it already exists.
+    >>>
+
+pycms uses the traditional index page convention to represent contents
+on disk. The command will create a new directory and HTML file in the
+working environment.
+
+    >>> glob.glob("pycmsroot/test/*")
+    ['pycmsroot/test/index.html']
+    >>> with open("pycmsroot/test/index.html") as f:
+    ...     print(f.read())
+    <!DOCTYPE html>
+    <html>
+    <meta charset="utf-8"/>
+    <head>
+    <title>TITLE</title>
+    </head>
+    <body>
+    CONTENT
+    </body>
+    </html>
+    >>>
+
+It also registers the URI in the template-URI map.
+
+    >>> with open("pycmsroot/_uri_template_map.json") as f:
+    ...     print(f.read())
+    {"/": "/_templates/index_template.html", "/test": "new_template.html"}
+    >>>
 
 
 Running the pycms web server
@@ -122,7 +163,7 @@ created by pycms.envinit() above.
     '<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>pycms Instance Index</title>\n</head>\n<body>\n    <h1>pycms Instance Index</h1>\n    <p>Welcome to your pycms instance.</p>\n</body>\n</html>'
     >>>
 
-    
+
 Deleting a pycms environment
 ----------------------------
 
