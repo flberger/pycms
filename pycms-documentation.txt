@@ -59,9 +59,9 @@ pycms templates are simple HTML files with placeholder lines.
 To add a template, drop it into the '_templates' folder.
 
     >>> with open("pycmsroot/_templates/new_template.html", "wt") as templatefile:
-    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>TITLE</title>\n</head>\n<body>\nCONTENT\n</body>\n</html>')
+    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>\nTITLE\n</title>\n</head>\n<body>\nCONTENT\n</body>\n</html>')
     ...
-    113
+    115
     >>> glob.glob("pycmsroot/_templates/*")
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
     >>>
@@ -97,7 +97,9 @@ working environment.
     <html>
     <meta charset="utf-8"/>
     <head>
-    <title>TITLE</title>
+    <title>
+    TITLE
+    </title>
     </head>
     <body>
     CONTENT
@@ -113,6 +115,98 @@ It also registers the URI in the template-URI map.
     >>>
 
 
+Editing page content
+--------------------
+
+You can edit page content in the pycms working environment straight
+away with your favourite HTML editor.
+
+pycms expects that you only change the placeholder elements of the
+respective page template. Anything concerning the templates will
+likely affect other pages as well, so you are expected to change
+the template in that case -- see the next section for this.
+
+    >>> with open("pycmsroot/test/index.html", "rt") as f:
+    ...    html = f.read()
+    ...
+    >>> html = html.replace("TITLE", "My first pycms page")
+    >>> html = html.replace("CONTENT", '<h1>My fist pycms page</h1>\n<p>This is my first pycms page.</p>')
+    >>> with open("pycmsroot/test/index.html", "wt") as f:
+    ...     f.write(html)
+    ...
+    185
+    >>> with open("pycmsroot/test/index.html") as f:
+    ...     print(f.read())
+    <!DOCTYPE html>
+    <html>
+    <meta charset="utf-8"/>
+    <head>
+    <title>
+    My first pycms page
+    </title>
+    </head>
+    <body>
+    <h1>My fist pycms page</h1>
+    <p>This is my first pycms page.</p>
+    </body>
+    </html>
+    >>>
+
+
+Editing templates and applying changes
+--------------------------------------
+
+pycms templates make it very convenient to change the style, layout
+and repeating content on several pages.
+
+pycms hat to be able to track the changes you are about to make to
+a template. So you first have to signal that you are going to edit
+it.
+
+    >>> pycms.edit.template("pycmsroot", "new_template.html")
+    >>>
+
+This will creat a backup of the current template, with the suffix
+'.old' added.
+
+    >>> glob.glob("pycmsroot/_templates/*")
+    ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html', 'pycmsroot/_templates/new_template.html.old']
+    >>>
+
+You can now go ahead and edit the original template.
+
+    >>> with open("pycmsroot/_templates/new_template.html", "wt") as templatefile:
+    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>\nTITLE\n</title>\n</head>\n<body>\n<hr>\nCONTENT\n<hr>\n</body>\n</html>')
+    ...
+    125
+
+After that, notify pycms that you are done updating the template. This
+will apply pending changes to all pages using the template, and delete
+any preceding versions of the template.
+
+    >>> pycms.edit.update()
+    >>> with open("pycmsroot/test/index.html") as f:
+    ...     print(f.read())
+    <!DOCTYPE html>
+    <html>
+    <meta charset="utf-8"/>
+    <head>
+    <title>
+    My first pycms page
+    </title>
+    </head>
+    <body>
+    <hr>
+    <h1>My fist pycms page</h1>
+    <p>This is my first pycms page.</p>
+    <hr>
+    </body>
+    </html>
+    >>> glob.glob("pycmsroot/_templates/*")
+    ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
+    >>>
+    
+
 Running the pycms web server
 ----------------------------
 
@@ -122,18 +216,6 @@ The serve() function runs an HTTP server.
 
     >>> pycms.serve.serve("pycmsroot", test = True)
     >>>
-
-
-Editing templates and applying changes
---------------------------------------
-
-TODO
-
-
-Editing page content
---------------------
-
-TODO
 
 
 pycms data representation
