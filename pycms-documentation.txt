@@ -44,8 +44,10 @@ environment.
 There now is a basic environment to work with. Let's take a look:
 
     >>> import glob
-    >>> glob.glob("pycmsroot/*")
-    ['pycmsroot/index.html', 'pycmsroot/_uri_template_map.json', 'pycmsroot/_templates']
+    >>> files = glob.glob("pycmsroot/*")
+    >>> files.sort()
+    >>> files
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html']
     >>> glob.glob("pycmsroot/_templates/*")
     ['pycmsroot/_templates/index_template.html']
     >>>
@@ -62,7 +64,9 @@ To add a template, drop it into the '_templates' folder.
     ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>\nTITLE\n</title>\n</head>\n<body>\nCONTENT\n</body>\n</html>')
     ...
     115
-    >>> glob.glob("pycmsroot/_templates/*")
+    >>> files = glob.glob("pycmsroot/_templates/*")
+    >>> files.sort()
+    >>> files
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
     >>>
 
@@ -169,7 +173,9 @@ it.
 This will creat a backup of the current template, with the suffix
 '.old' added.
 
-    >>> glob.glob("pycmsroot/_templates/*")
+    >>> files = glob.glob("pycmsroot/_templates/*")
+    >>> files.sort()
+    >>> files
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html', 'pycmsroot/_templates/new_template.html.old']
     >>>
 
@@ -184,7 +190,7 @@ After that, notify pycms that you are done updating the template. This
 will apply pending changes to all pages using the template, and delete
 any preceding versions of the template.
 
-    >>> pycms.edit.update()
+    >>> pycms.edit.update("pycmsroot")
     >>> with open("pycmsroot/test/index.html") as f:
     ...     print(f.read())
     <!DOCTYPE html>
@@ -202,7 +208,9 @@ any preceding versions of the template.
     <hr>
     </body>
     </html>
-    >>> glob.glob("pycmsroot/_templates/*")
+    >>> files = glob.glob("pycmsroot/_templates/*")
+    >>> files.sort()
+    >>> files
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
     >>>
     
