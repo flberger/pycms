@@ -115,7 +115,7 @@ It also registers the URI in the template-URI map.
 
     >>> with open("pycmsroot/_uri_template_map.json") as f:
     ...     print(f.read())
-    {"/": "/_templates/index_template.html", "/test": "new_template.html"}
+    {"/": "index_template.html", "/test": "new_template.html"}
     >>>
 
 
@@ -163,7 +163,7 @@ Editing templates and applying changes
 pycms templates make it very convenient to change the style, layout
 and repeating content on several pages.
 
-pycms hat to be able to track the changes you are about to make to
+pycms has to be able to track the changes you are about to make to
 a template. So you first have to signal that you are going to edit
 it.
 
@@ -222,8 +222,8 @@ Once there is a working environment, pycms can serve content from it.
 
 The serve() function runs an HTTP server.
 
-    >>> pycms.serve.serve("pycmsroot", test = True)
-    >>>
+    NOTE: Deactivated
+    pycms.serve.serve("pycmsroot", test = True)
 
 
 pycms data representation
@@ -275,3 +275,49 @@ on the command line. `htmlroot` is a directory containing the data to serve
 from and to save to. If written as above, pycms assumes it to be a local
 subdirectory. You can also give full qualified paths as `/home/user/htmlroot`
 or `C:\htmlroot\`, depending on your operatings system.
+
+
+Helper Classes and Methods
+--------------------------
+
+pycms contains various helpers under the hood to perform its work.
+
+
+### LineReplacement
+
+The LineReplacement class is being used to compute differences between
+templates and actual pages. It utilises knowledge about how pycms
+templates work.
+
+    >>> source = """<html>
+    ... <head><title>Test Template</title></head>
+    ... <body>
+    ... REPLACE_THIS
+    ... </body>
+    ... </html>"""
+    >>> result = """<html>
+    ... <head><title>Test Template</title></head>
+    ... <body>
+    ...     <div>
+    ...         <p>Replaced!</p>
+    ...     </div>
+    ... </body>
+    ... </html>"""
+    >>> lp = pycms.edit.LineReplacement(source, result)
+    >>> lp.replacements
+    {'REPLACE_THIS': '    <div>\n        <p>Replaced!</p>\n    </div>'}
+    >>>
+
+It also has a method to apply the found replacements to new strings.
+
+    >>> original = """<html>
+    ... <head><title>Another Template</title></head>
+    ... <body>
+    ...   <div>
+    ... REPLACE_THIS
+    ...   </div>
+    ... </body>
+    ... </html>"""
+    >>> lp.replace(original)
+    '<html>\n<head><title>Another Template</title></head>\n<body>\n  <div>\n    <div>\n        <p>Replaced!</p>\n    </div>\n  </div>\n</body>\n</html>'
+    >>>
