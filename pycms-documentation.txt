@@ -61,9 +61,9 @@ pycms templates are simple HTML files with placeholder lines.
 To add a template, drop it into the '_templates' folder.
 
     >>> with open("pycmsroot/_templates/new_template.html", "wt") as templatefile:
-    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>\nTITLE\n</title>\n</head>\n<body>\nCONTENT\n</body>\n</html>')
+    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>\n        TITLE\n    </title>\n</head>\n<body>\n    CONTENT\n</body>\n</html>')
     ...
-    115
+    135
     >>> files = glob.glob("pycmsroot/_templates/*")
     >>> files.sort()
     >>> files
@@ -101,12 +101,12 @@ working environment.
     <html>
     <meta charset="utf-8"/>
     <head>
-    <title>
-    TITLE
-    </title>
+        <title>
+            TITLE
+        </title>
     </head>
     <body>
-    CONTENT
+        CONTENT
     </body>
     </html>
     >>>
@@ -138,19 +138,19 @@ the template in that case -- see the next section for this.
     >>> with open("pycmsroot/test/index.html", "wt") as f:
     ...     f.write(html)
     ...
-    185
+    205
     >>> with open("pycmsroot/test/index.html") as f:
     ...     print(f.read())
     <!DOCTYPE html>
     <html>
     <meta charset="utf-8"/>
     <head>
-    <title>
-    My first pycms page
-    </title>
+        <title>
+            My first pycms page
+        </title>
     </head>
     <body>
-    <h1>My fist pycms page</h1>
+        <h1>My fist pycms page</h1>
     <p>This is my first pycms page.</p>
     </body>
     </html>
@@ -182,9 +182,9 @@ This will creat a backup of the current template, with the suffix
 You can now go ahead and edit the original template.
 
     >>> with open("pycmsroot/_templates/new_template.html", "wt") as templatefile:
-    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n<title>\nTITLE\n</title>\n</head>\n<body>\n<hr>\nCONTENT\n<hr>\n</body>\n</html>')
+    ...     templatefile.write('<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>\n        TITLE\n    </title>\n</head>\n<body>\n<hr>\n    CONTENT\n<hr>\n</body>\n</html>')
     ...
-    125
+    145
 
 After that, notify pycms that you are done updating the template. This
 will apply pending changes to all pages using the template, and delete
@@ -197,13 +197,13 @@ any preceding versions of the template.
     <html>
     <meta charset="utf-8"/>
     <head>
-    <title>
-    My first pycms page
-    </title>
+        <title>
+            My first pycms page
+        </title>
     </head>
     <body>
     <hr>
-    <h1>My fist pycms page</h1>
+        <h1>My fist pycms page</h1>
     <p>This is my first pycms page.</p>
     <hr>
     </body>
@@ -250,7 +250,7 @@ calling the CMS instance as a method. This yields the default page
 created by pycms.envinit() above.
 
     >>> dummy_cms()
-    '<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>pycms Instance Index</title>\n</head>\n<body>\n    <h1>pycms Instance Index</h1>\n    <p>Welcome to your pycms instance.</p>\n</body>\n</html>'
+    '<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>\npycms Instance Index\n    </title>\n</head>\n<body>\n    <h1>pycms Instance Index</h1>\n    <p>Welcome to your pycms instance.</p>\n</body>\n</html>'
     >>>
 
 
@@ -305,7 +305,7 @@ templates work.
     ... </html>"""
     >>> lp = pycms.edit.LineReplacement(source, result)
     >>> lp.replacements
-    {'REPLACE_THIS': '    <div>\n        <p>Replaced!</p>\n    </div>'}
+    {'REPLACE_THIS': '<div>\n        <p>Replaced!</p>\n    </div>'}
     >>>
 
 It also has a method to apply the found replacements to new strings.
@@ -319,5 +319,5 @@ It also has a method to apply the found replacements to new strings.
     ... </body>
     ... </html>"""
     >>> lp.replace(original)
-    '<html>\n<head><title>Another Template</title></head>\n<body>\n  <div>\n    <div>\n        <p>Replaced!</p>\n    </div>\n  </div>\n</body>\n</html>'
+    '<html>\n<head><title>Another Template</title></head>\n<body>\n  <div>\n<div>\n        <p>Replaced!</p>\n    </div>\n  </div>\n</body>\n</html>'
     >>>

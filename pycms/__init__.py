@@ -57,7 +57,9 @@ def envinit(htmlroot):
 <html>
 <meta charset="utf-8"/>
 <head>
-    <title>pycms Instance Index</title>
+    <title>
+pycms Instance Index
+    </title>
 </head>
 <body>
     <h1>pycms Instance Index</h1>
@@ -73,7 +75,9 @@ def envinit(htmlroot):
 <html>
 <meta charset="utf-8"/>
 <head>
-    <title>TITLE</title>
+    <title>
+        TITLE
+    </title>
 </head>
 <body>
 CONTENT

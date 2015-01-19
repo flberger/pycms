@@ -117,11 +117,11 @@ class LineReplacement:
 
                     replacement.append(result_split.pop(0))
 
-                # Lines match now. Store replacement with trailing
+                # Lines match now. Store replacement with enclosing
                 # whitespace removed, and repeat from removing the
                 # first separator.
                 #
-                self.replacements[tokenised[0]] = "".join(replacement).rstrip()
+                self.replacements[tokenised[0]] = "".join(replacement).strip()
 
                 del tokenised[0]
 
