@@ -20,7 +20,7 @@
 
 # Work started on 30. Sep 2013. This is a rewrite of BBk3 based on a different concept.
 
-from sys import stderr
+import sys
 import os
 import os.path
 import json
@@ -34,9 +34,15 @@ def command_line_function(func):
     """Register the name of the function given as a command line command.
     """
 
-    stderr.write("Registering '{}' as a command line command\n".format(func.__name__))
+    command = "_".join((func.__module__, func.__name__))
 
-    COMMAND_LINE_COMMANDS[func.__name__] = func
+    command = command.replace("pycms.", "")
+
+    command = command.replace("pycms_", "")
+
+    sys.stderr.write("Registering '{}' as a command line command\n".format(command))
+
+    COMMAND_LINE_COMMANDS[command] = func
 
     return func
 
@@ -65,7 +71,8 @@ pycms Instance Index
     <h1>pycms Instance Index</h1>
     <p>Welcome to your pycms instance.</p>
 </body>
-</html>''')
+</html>
+''')
 
     os.mkdir(os.path.join(htmlroot, "_templates"))
 
@@ -82,7 +89,8 @@ pycms Instance Index
 <body>
 CONTENT
 </body>
-</html>''')
+</html>
+''')
 
     with open(os.path.join(htmlroot, "_uri_template_map.json"), "wt", encoding = "utf8") as mapfile:
 

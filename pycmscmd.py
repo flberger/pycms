@@ -20,7 +20,10 @@
 
 import optparse
 import pycms
+import pycms.create
+import pycms.edit
 import pycms.serve
+
 
 def main():
     """Parse options and configuration and call serve().
@@ -76,24 +79,14 @@ def main():
         raise RuntimeError("Unknown command '{}'. Please use one of {}.".format(args[0],
                                                                                 commands))
 
-    # Filter commands that require a parameter
+    if len(args) < 2:
+
+        raise RuntimeError("Please specify the root directory containing the working environment for command '{}'.".format(args[0]))
+
+    # Now for some Python magic.
+    # Call the function given as command on the command line.
     #
-    if args[0] in ("envinit", "serve"):
-
-        if len(args) < 2:
-
-            raise RuntimeError("Please specify the root directory containing the working environment for command '{}'.".format(args[0]))
-
-        # Now for some Python magic.
-        # Call the function given as command on the command line.
-        #
-        pycms.COMMAND_LINE_COMMANDS[args[0]](args[1])
-
-    else:
-
-        # Call without parameters.
-        #
-        pycms.COMMAND_LINE_COMMANDS[args[0]]()
+    pycms.COMMAND_LINE_COMMANDS[args[0]](*args[1:])
 
     return
 
