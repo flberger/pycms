@@ -6,27 +6,33 @@ pycms is a web content management system based on CherryPy.
 Import
 ------
 
-To use the pycms API, first import the pycms modules.
+To use the pycms API, first import the pycms module.
 
     >>> import pycms
-    >>> import pycms.create
-    >>> import pycms.edit
-    >>> import pycms.serve
+    >>>
+
+    
+Creating a new instance
+-----------------------
+
+An instance represents a hierarchy of pages, along with templates.
+It is initialised with the path to a root directory. This is an
+ordinary directory, with a subdirectory for templates.
+
+    >>> instance = pycms.Instance("pycmsroot")
     >>>
 
 
-Initialising files and directories for a new instance
------------------------------------------------------
+Initialising files and directories
+----------------------------------
 
 pycms needs a working environment to store the CMS contents in.
-
-This is an ordinary directory, with a subdirectory for templates.
 
 For a new pycms instance, this working environment must be created
 before pycms can be used. Otherwise an exception will be raised when
 trying to run pycms.
 
-    >>> pycms.serve.serve("pycmsroot", test = True)
+    >>> instance.serve(test = True)
     Traceback (most recent call last):
     ...
     RuntimeError: Working environment directory 'pycmsroot' not found. Did you run pycms.envinit("pycmsroot")?
@@ -35,10 +41,9 @@ trying to run pycms.
 The 'test' flag will terminate pycms after a short while, for
 automated testing.
 
-The envinit() function will take care of creating the
-environment.
+The envinit() method will take care of creating the environment.
 
-    >>> pycms.envinit("pycmsroot")
+    >>> instance.envinit()
     >>>
 
 There now is a basic environment to work with. Let's take a look:
@@ -75,15 +80,15 @@ Creating pages based on templates
 ---------------------------------
 
 pycms pages are tied to an URI and based on a template. To create a
-new page, all of these must be given, along with the environment.
+new page, all of these must be given.
 
-    >>> pycms.create.page("pycmsroot", "/test", "new_template.html")
+    >>> instance.create_page("/test", "new_template.html")
     >>>
 
 Any trailing URI slash will be stripped before creating the page.
 "/test/" and "/test" refer to the same object, though.
 
-    >>> pycms.create.page("pycmsroot", "/test/", "new_template.html")
+    >>> instance.create_page("/test/", "new_template.html")
     Traceback (most recent call last):
     ...
     RuntimeError: URI "/test/" can not be created because it already exists.
@@ -122,8 +127,8 @@ It also registers the URI in the template-URI map.
 Editing page content
 --------------------
 
-You can edit page content in the pycms working environment straight
-away with your favourite HTML editor.
+You can edit page content in the pycms instance's working environment
+straight away with your favourite HTML editor.
 
 pycms expects that you only change the placeholder elements of the
 respective page template. Anything concerning the templates will
@@ -167,7 +172,7 @@ pycms has to be able to track the changes you are about to make to
 a template. So you first have to signal that you are going to edit
 it.
 
-    >>> pycms.edit.template("pycmsroot", "new_template.html")
+    >>> instance.edit_template("new_template.html")
     >>>
 
 This will creat a backup of the current template, with the suffix
@@ -190,7 +195,7 @@ After that, notify pycms that you are done updating the template. This
 will apply pending changes to all pages using the template, and delete
 any preceding versions of the template.
 
-    >>> pycms.edit.update("pycmsroot")
+    >>> instance.update()
     >>> with open("pycmsroot/test/index.html") as f:
     ...     print(f.read())
     <!DOCTYPE html>
@@ -220,10 +225,10 @@ Running the pycms web server
 
 Once there is a working environment, pycms can serve content from it.
 
-The serve() function runs an HTTP server.
+The serve() method runs an HTTP server.
 
     NOTE: Deactivated
-    pycms.serve.serve("pycmsroot", test = True)
+    instance.serve(test = True)
 
 
 pycms data representation
@@ -231,8 +236,8 @@ pycms data representation
 
 When preparing to serve, pymcs parses the working environment and
 creates an internal data structure. This is done by the
-pycms.envparse() function. This function expects the path to the
-working enviromnemt and a pycms.CMS instance as input. For
+pycms.envparse() method. This method expects the path to the
+working environment and a pycms.CMS instance as input. For
 demonstration purposes, we will use a dummy object here, bypassing
 pycms.CMS.__init__().
 
@@ -240,8 +245,8 @@ pycms.CMS.__init__().
     ...     pass
     ...
     >>> dummy_cms = DummyCMS()
-    >>> dummy_cms.__dict__["__class__"] = pycms.serve.CMS
-    >>> pycms.serve.envparse("pycmsroot", dummy_cms)
+    >>> dummy_cms.__dict__["__class__"] = pycms.CMS
+    >>> pycms.envparse("pycmsroot", dummy_cms)
     >>>
 
 The CMS instance will be populated by the parsing results. In this
@@ -250,7 +255,7 @@ calling the CMS instance as a method. This yields the default page
 created by pycms.envinit() above.
 
     >>> dummy_cms()
-    '<!DOCTYPE html>\n<html>\n<meta charset="utf-8"/>\n<head>\n    <title>\npycms Instance Index\n    </title>\n</head>\n<body>\n    <h1>pycms Instance Index</h1>\n    <p>Welcome to your pycms instance.</p>\n</body>\n</html>'
+    '<!DOCTYPE html>\n    <html>\n    <meta charset="utf-8"/>\n    <head>\n        <title>\n    pycms Instance Index\n        </title>\n    </head>\n    <body>\n        <h1>pycms Instance Index</h1>\n        <p>Welcome to your pycms instance.</p>\n    </body>\n    </html>\n    '
     >>>
 
 
@@ -303,7 +308,7 @@ templates work.
     ...     </div>
     ... </body>
     ... </html>"""
-    >>> lp = pycms.edit.LineReplacement(source, result)
+    >>> lp = pycms.LineReplacement(source, result)
     >>> lp.replacements
     {'REPLACE_THIS': '<div>\n        <p>Replaced!</p>\n    </div>'}
     >>>
