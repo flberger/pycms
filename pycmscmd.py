@@ -20,49 +20,139 @@
 
 import optparse
 import pycms
-import pycms.create
-import pycms.edit
-import pycms.serve
+import cmd
+import glob
+import os.path
 
-
-def main():
-    """Parse options and configuration and call serve().
+class PycmsCmd(cmd.Cmd):
+    """Cmd subclass with pycms-specific methods.
     """
 
-    # Originally taken from bbk3.run
+    def __init__(self, instance):
+        """Initialise.
+        """
+
+        self.instance = instance
+        
+        cmd.Cmd.__init__(self)
+
+        self.prompt = "pycms: "
+
+        self.intro = """Welcome to the pycms command line interface.
+Type '?' for help and 'EOF' to exit.
+htmlroot = {}""".format(self.instance.htmlroot)
+
+        return
+
+    def emptyline(self):
+        """Ignore empty input, overriding default behaviour.
+        """
+
+        return
+
+    # Begin pycms.Instance method dispatchers
+    #
+    # TODO: Ideally, these would be added automatically via some decorator or parser by calling `setattr()` on the class.
+    # But this is simple and straightforward.
+
+    def do_envinit(self, arg):
+        """do_envinit documentation
+        """
+
+        self.instance.envinit()
+
+        return False
+
+    def do_create_page(self, arg):
+        """do_create_page documentation
+        """
+
+        self.instance.create_page(*arg.split())
+
+        return False
+
+    def do_edit_template(self, arg):
+        """do_edit_template documentation
+        """
+
+        self.instance.edit_template(arg)
+
+        return False
+
+    def do_update(self, arg):
+        """do_update documentation
+        """
+
+        self.instance.update()
+
+        return False
+
+    def do_serve(self, arg):
+        """do_serve documentation
+        """
+
+        self.instance.serve()
+
+        return False
+
+    # End pycms.Instance method dispatchers
+
+    def completedefault(self, text, line, begidx, endidx):
+        """Complete using the template file names.
+        """
+
+        # TODO: A template file list really should be available in the instance.
+        #
+        template_paths = glob.glob("{}/_templates/*.html".format(self.instance.htmlroot))
+
+        template_files = [os.path.basename(path) for path in template_paths]
+
+        return template_files
+        
+    def do_EOF(self, arg):
+        """Exit the command line interpreter.
+        """
+
+        return True
+
+def main():
+    """Run a command line interpreter.
+    """
+
+    # # Originally taken from bbk3.run
 
     parser = optparse.OptionParser(version = pycms.VERSION,
-                                   usage = "Usage: %prog [options] command [htmlroot]")
+                                   usage = "Usage: %prog [options] htmlroot")
 
-    parser.add_option("-p", "--port",
-                      action = "store",
-                      type = "int",
-                      default = 8000,
-                      help = "The port to listen on. Default: 8000")
+    # parser.add_option("-p", "--port",
+    #                   action = "store",
+    #                   type = "int",
+    #                   default = 8000,
+    #                   help = "The port to listen on. Default: 8000")
 
-    parser.add_option("-t", "--threads",
-                      action = "store",
-                      type = "int",
-                      default = 10,
-                      help = "The number of worker threads to start. Default: 10")
+    # parser.add_option("-t", "--threads",
+    #                   action = "store",
+    #                   type = "int",
+    #                   default = 10,
+    #                   help = "The number of worker threads to start. Default: 10")
 
-    parser.add_option("-a", "--autoreload",
-                      action = "store_true",
-                      dest = "autoreload",
-                      default = False,
-                      help = "Turn on CherryPy's auto reloading feature. Default: Off.")
+    # parser.add_option("-a", "--autoreload",
+    #                   action = "store_true",
+    #                   dest = "autoreload",
+    #                   default = False,
+    #                   help = "Turn on CherryPy's auto reloading feature. Default: Off.")
 
     options, args = parser.parse_args()
 
-    # Conditionally turn off Autoreloader
-    #
-    if not options.autoreload:
+    # # Conditionally turn off Autoreloader
+    # #
+    # if not options.autoreload:
 
-        pycms.serve.cherrypy.engine.autoreload.unsubscribe()
+    #     pycms.cherrypy.engine.autoreload.unsubscribe()
 
-    pycms.serve.CONFIG_DICT["global"]= {"server.socket_host" : "0.0.0.0",
-                                        "server.socket_port" : options.port,
-                                        "server.thread_pool" : options.threads}
+    # pycms.CONFIG_DICT["global"]= {"server.socket_host" : "0.0.0.0",
+    #                               "server.socket_port" : options.port,
+    #                               "server.thread_pool" : options.threads}
 
     if not len(args):
 
@@ -70,23 +160,11 @@ def main():
 
         raise SystemExit
 
-    if not args[0] in pycms.COMMAND_LINE_COMMANDS:
+    instance = pycms.Instance(args[0])
+    
+    pycms_cmd = PycmsCmd(instance)
 
-        # My first generator comprehension, saving list memory. :-)
-        #
-        commands = ", ".join(("'{}'".format(item) for item in pycms.COMMAND_LINE_COMMANDS))
-        
-        raise RuntimeError("Unknown command '{}'. Please use one of {}.".format(args[0],
-                                                                                commands))
-
-    if len(args) < 2:
-
-        raise RuntimeError("Please specify the root directory containing the working environment for command '{}'.".format(args[0]))
-
-    # Now for some Python magic.
-    # Call the function given as command on the command line.
-    #
-    pycms.COMMAND_LINE_COMMANDS[args[0]](*args[1:])
+    pycms_cmd.cmdloop()
 
     return
 

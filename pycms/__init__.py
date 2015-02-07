@@ -30,27 +30,8 @@ import re
 import cherrypy
 
 VERSION = "0.1.0"
-COMMAND_LINE_COMMANDS = {}
 
 CONFIG_DICT = {}
-
-# My first useful decorator, if I remember correctly.
-#
-def command_line_function(func):
-    """Register the name of the function given as a command line command.
-    """
-
-    command = "_".join((func.__module__, func.__name__))
-
-    command = command.replace("pycms.", "")
-
-    command = command.replace("pycms_", "")
-
-    sys.stderr.write("Registering '{}' as a command line command\n".format(command))
-
-    COMMAND_LINE_COMMANDS[command] = func
-
-    return func
 
 class Instance:
     """Represents a hierarchy of pages, along with templates.
@@ -69,7 +50,6 @@ class Instance:
 
         return
 
-    @command_line_function
     def envinit(self):
         """Create a working directory consisting of the minimum directory and files necessary to run a pycms instance.
         """
@@ -120,7 +100,6 @@ class Instance:
 
         return
         
-    @command_line_function
     def create_page(self, uri, template):
         """Create and register a new page under the given URI using the given template.
         """
@@ -159,7 +138,6 @@ class Instance:
 
         return
         
-    @command_line_function
     def edit_template(self, template):
         """Create a backup of `template` in `htmlroot`, as a preparation for a template update.
         """
@@ -169,7 +147,6 @@ class Instance:
 
         return
 
-    @command_line_function
     def update(self):
         """Search for pending template changes, apply them to all pages using the template and delete template backups.
         """
@@ -249,7 +226,6 @@ class Instance:
 
         return
 
-    @command_line_function
     def serve(self, test = False):
         """Serve the CMS instance from the root .
 
