@@ -164,7 +164,16 @@ def main():
     
     pycms_cmd = PycmsCmd(instance)
 
-    pycms_cmd.cmdloop()
+    if len(args) == 1:
+
+        pycms_cmd.cmdloop()
+
+    else:
+
+        # Support one-shot commands.
+        # Lead out the root directory argument.
+        #
+        pycms_cmd.onecmd(" ".join(args[1:]))
 
     return
 
