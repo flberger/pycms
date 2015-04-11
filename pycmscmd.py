@@ -24,6 +24,10 @@ import cmd
 import glob
 import os.path
 
+# http://bugs.python.org/issue15074
+import readline
+readline.set_completer_delims(' \t\n;')
+
 class PycmsCmd(cmd.Cmd):
     """Cmd subclass with pycms-specific methods.
     """
@@ -98,16 +102,54 @@ htmlroot = {}""".format(self.instance.htmlroot)
     # End pycms.Instance method dispatchers
 
     def completedefault(self, text, line, begidx, endidx):
-        """Complete using the template file names.
+        """Complete using the template file names and the instance file tree.
         """
 
         # TODO: A template file list really should be available in the instance.
         #
         template_paths = glob.glob("{}/_templates/*.html".format(self.instance.htmlroot))
 
-        template_files = [os.path.basename(path) for path in template_paths]
+        completions = [os.path.basename(path) for path in template_paths]
 
-        return template_files
+        uris = []
+
+        for dirpath, dirnames, filenames in os.walk(self.instance.htmlroot, topdown = True):
+
+            # pycms URI path components are reflected by directories
+            # on disc, hence we're not interested in file names.
+
+            # Remove pycms special directories.
+            # We have to manipulate the list in-place, but cannot
+            # iterate over it.
+            #
+            index = 0
+            list_length = len(dirnames)
+
+            while index < list_length:
+
+                if dirnames[index][0] == "_":
+
+                    del dirnames[index]
+
+                    list_length = len(dirnames)
+
+                else:
+
+                    index += 1
+
+            # The part after the htmlroot perfectly resembles an URI
+            # component.
+            # TODO: Check on MS Windows
+            #
+            uris.append(dirpath.split(self.instance.htmlroot.strip("/"))[1])
+
+        completions.extend(uris)
+
+        if text != "":
+
+            completions = list(filter(lambda i: i.startswith(text), completions))
+
+        return completions
         
     def do_EOF(self, arg):
         """Exit the command line interpreter.
@@ -171,7 +213,7 @@ def main():
     else:
 
         # Support one-shot commands.
-        # Lead out the root directory argument.
+        # Leave out the root directory argument.
         #
         pycms_cmd.onecmd(" ".join(args[1:]))
 
