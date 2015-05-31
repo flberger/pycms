@@ -112,15 +112,23 @@ class Instance:
 
         path += [component for component in uri.strip("/").split("/")]
 
-        if os.path.exists(os.path.join(*path)):
+        path_with_index = path + ["index.html"]
+        
+        if uri == "/":
 
-            raise RuntimeError('URI "{}" can not be created because it already exists.'.format(uri))
+            if os.path.exists(os.path.join(*path_with_index)):
 
-        os.makedirs(os.path.join(*path))
+                raise RuntimeError('URI "{}" can not be created because "{}" already exists.'.format(uri, os.path.join(*path_with_index)))
 
-        path += ["index.html"]
+        else:
+        
+            if os.path.exists(os.path.join(*path)):
 
-        shutil.copy(os.path.join(self.htmlroot, "_templates", template), os.path.join(*path))
+                raise RuntimeError('URI "{}" can not be created because "{}" already exists.'.format(uri, os.path.join(*path)))
+
+            os.makedirs(os.path.join(*path))
+
+        shutil.copy(os.path.join(self.htmlroot, "_templates", template), os.path.join(*path_with_index))
 
         uri_map_dict = {}
 
@@ -226,6 +234,52 @@ class Instance:
 
         return
 
+    def remove_page(self, uri):
+        """Remove the page page under the given URI.
+        """
+
+        # TODO: Remove all pages starting with uri
+
+        if not uri.startswith("/"):
+
+            raise RuntimeError("The URI parameter must start with a slash.")
+
+        if uri == "/":
+
+            # We do not want to remove the htmlroot directory.
+            # Remove the root index page only.
+
+            os.remove(os.path.join(self.htmlroot, "index.html"))
+
+        else:
+
+            path = [self.htmlroot]
+
+            path += [component for component in uri.strip("/").split("/")]
+
+            #!!!
+            if not os.path.exists(os.path.join(*path)):
+
+                raise RuntimeError('URI "{}" can not be removed because "{}" does not exist.'.format(uri, os.path.join(*path)))
+
+            shutil.rmtree(os.path.join(*path))
+
+        uri_map_dict = {}
+
+        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "rt", encoding = "utf8") as uri_map_file:
+
+            uri_map_dict = json.loads(uri_map_file.read())
+
+        del uri_map_dict["/{}".format(uri.strip("/"))]
+
+        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "wt", encoding = "utf8") as uri_map_file:
+
+            uri_map_file.write(json.dumps(uri_map_dict,
+                                          sort_keys = True,
+                                          ensure_ascii = False))
+
+        return
+        
     def serve(self, test = False):
         """Serve the CMS instance from the root .
 

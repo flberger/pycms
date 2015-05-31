@@ -91,7 +91,7 @@ Any trailing URI slash will be stripped before creating the page.
     >>> instance.create_page("/test/", "new_template.html")
     Traceback (most recent call last):
     ...
-    RuntimeError: URI "/test/" can not be created because it already exists.
+    RuntimeError: URI "/test/" can not be created because "pycmsroot/test" already exists.
     >>>
 
 pycms uses the traditional index page convention to represent contents
@@ -218,8 +218,65 @@ any preceding versions of the template.
     >>> files
     ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
     >>>
-    
 
+
+Removing a page
+---------------
+
+Removing a page is simple:
+
+    >>> instance.remove_page("/test")
+    >>>
+
+Again, a trailing slash will be stripped:
+
+    >>> instance.remove_page("/test/")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: URI "/test/" can not be removed because "pycmsroot/test" does not exist.
+    >>>
+
+On disk, the directory and the index page will be removed:
+
+    >>> files = glob.glob("pycmsroot/*")
+    >>> files.sort()
+    >>> files
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html']
+
+The URI will also be removed from the template-URI map.
+
+    >>> with open("pycmsroot/_uri_template_map.json") as f:
+    ...     print(f.read())
+    {"/": "index_template.html"}
+    >>>
+
+However the template used persists:
+
+    >>> files = glob.glob("pycmsroot/_templates/*")
+    >>> files.sort()
+    >>> files
+    ['pycmsroot/_templates/index_template.html', 'pycmsroot/_templates/new_template.html']
+    >>>
+
+Removing the root URI "/" will remove the index page only, not the
+root directory.
+
+    >>> instance.remove_page("/")
+    >>> with open("pycmsroot/_uri_template_map.json") as f:
+    ...     print(f.read())
+    {}
+    >>> files = glob.glob("pycmsroot/*")
+    >>> files.sort()
+    >>> files
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json']
+    >>> 
+
+This of course is a state one would not want to keep.
+
+    >>> instance.create_page("/", "index_template.html")
+    >>>
+
+    
 Running the pycms web server
 ----------------------------
 
@@ -255,7 +312,7 @@ calling the CMS instance as a method. This yields the default page
 created by pycms.envinit() above.
 
     >>> dummy_cms()
-    '<!DOCTYPE html>\n    <html>\n    <meta charset="utf-8"/>\n    <head>\n        <title>\n    pycms Instance Index\n        </title>\n    </head>\n    <body>\n        <h1>pycms Instance Index</h1>\n        <p>Welcome to your pycms instance.</p>\n    </body>\n    </html>\n    '
+    '<!DOCTYPE html>\n    <html>\n    <meta charset="utf-8"/>\n    <head>\n        <title>\n            TITLE\n        </title>\n    </head>\n    <body>\n    CONTENT\n    </body>\n    </html>\n    '
     >>>
 
 
