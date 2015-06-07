@@ -91,6 +91,14 @@ htmlroot = {}""".format(self.instance.htmlroot)
 
         return False
 
+    def do_remove_page(self, arg):
+        """do_remove_page documentation
+        """
+
+        self.instance.remove_page(arg)
+
+        return False
+
     def do_serve(self, arg):
         """do_serve documentation
         """
