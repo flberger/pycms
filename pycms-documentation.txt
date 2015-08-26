@@ -284,8 +284,8 @@ Once there is a working environment, pycms can serve content from it.
 
 The serve() method runs an HTTP server.
 
-    NOTE: Deactivated
-    instance.serve(test = True)
+    >>> instance.serve(test = True)
+    >>>
 
 
 pycms data representation

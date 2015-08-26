@@ -286,18 +286,39 @@ class Instance:
            short while. This is a feature for automated testing.
         """
 
-        root = CMS(self.htmlroot)
+        # TODO: Move cherrypy code
+        #
+        # root = CMS(self.htmlroot)
+        #
+        # config_dict_final = {"/" : {"tools.sessions.on" : True,
+        #                            "tools.sessions.timeout" : 60}}
+        #
+        # config_dict_final.update(CONFIG_DICT)
 
-        config_dict_final = {"/" : {"tools.sessions.on" : True,
-                                    "tools.sessions.timeout" : 60}}
+        import http.server
+        import socketserver
 
-        config_dict_final.update(CONFIG_DICT)
+        # SimpleHTTPRequestHandler serves from the current directory,
+        # so change accordingly
+
+        original_cwd = os.getcwd()
+
+        try:
+            os.chdir(self.htmlroot)
+
+        except FileNotFoundError:
+            
+            raise RuntimeError("Working environment directory 'pycmsroot' not found. Did you run pycms.envinit(\"pycmsroot\")?")
+
+        handler = http.server.SimpleHTTPRequestHandler
+
+        httpd = socketserver.TCPServer(("", 8000), handler)
 
         exit_thread = None
 
         if test:
 
-            stderr.write("Testing enabled, terminating after timeout\n")
+            sys.stderr.write("Testing enabled, terminating after timeout\n")
 
             def exit_after_timeout():
 
@@ -311,10 +332,12 @@ class Instance:
 
                     time.sleep(0.1)
 
-                stderr.write("About to terminate web server\n")
+                sys.stderr.write("About to terminate web server\n")
 
-                # TODO: Terminate web server here
+                # NOTE: Terminate web server here
                 # cherrypy.engine.exit()
+
+                httpd.shutdown()
                 
                 return
 
@@ -323,20 +346,26 @@ class Instance:
             exit_thread = threading.Thread(target = exit_after_timeout,
                                            name = "exit_thread")
 
-            stderr.write("Starting exit thread\n")
+            sys.stderr.write("Starting exit thread\n")
 
             exit_thread.start()
 
-        # TODO: Start up web server here
+        # NOTE: Start up web server here
         # cherrypy.quickstart(root, config = config_dict_final)
+
+        sys.stderr.write("Serving HTTP on port 8000")
+        
+        httpd.serve_forever()
+
+        os.chdir(original_cwd)
 
         if test:
 
-            stderr.write("Waiting for exit thread\n")
+            sys.stderr.write("Waiting for exit thread\n")
 
             exit_thread.join()
 
-            stderr.write("Exit thread joined\n")
+            sys.stderr.write("Exit thread joined\n")
 
         return
 
