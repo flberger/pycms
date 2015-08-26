@@ -53,7 +53,7 @@ INCLUDE_FILES = []
 LONG_DESCRIPTION = """About
 -----
 
-pycms is a web content management system based on CherryPy.
+pycms is a lightweight web content management system.
 
 Prerequisites
 -------------
@@ -149,7 +149,7 @@ setup(name = PACKAGE,
       author = "Florian Berger",
       author_email = "fberger@florian-berger.de",
       url = "http://florian-berger.de/en/software/pycms",
-      description = PACKAGE + " - a web content management system based on CherryPy.",
+      description = PACKAGE + " - a lightweight web content management system.",
       long_description = LONG_DESCRIPTION,
       license = "GPL",
       py_modules = [],

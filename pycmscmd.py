@@ -1,4 +1,4 @@
-"""A web content management system based on CherryPy.
+"""A lightweight web content management system.
 
    Copyright (c) 2013 Florian Berger <fberger@florian-berger.de>
 """

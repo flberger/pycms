@@ -1,7 +1,7 @@
 Documentation for pycms
 =======================
 
-pycms is a web content management system based on CherryPy.
+pycms is a lightweight web content management system.
 
 Import
 ------
@@ -175,7 +175,7 @@ it.
     >>> instance.edit_template("new_template.html")
     >>>
 
-This will creat a backup of the current template, with the suffix
+This will create a backup of the current template, with the suffix
 '.old' added.
 
     >>> files = glob.glob("pycmsroot/_templates/*")

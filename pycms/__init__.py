@@ -1,4 +1,4 @@
-"""A web content management system based on CherryPy.
+"""A lightweight web content management system.
 
    Copyright (c) 2013 Florian Berger <fberger@florian-berger.de>
 """
@@ -27,7 +27,6 @@ import shutil
 import glob
 import sys
 import re
-import cherrypy
 
 VERSION = "0.1.0"
 
@@ -312,10 +311,11 @@ class Instance:
 
                     time.sleep(0.1)
 
-                stderr.write("About to terminate CherryPy engine\n")
+                stderr.write("About to terminate web server\n")
 
-                cherrypy.engine.exit()
-
+                # TODO: Terminate web server here
+                # cherrypy.engine.exit()
+                
                 return
 
             import threading
@@ -327,7 +327,8 @@ class Instance:
 
             exit_thread.start()
 
-        cherrypy.quickstart(root, config = config_dict_final)
+        # TODO: Start up web server here
+        # cherrypy.quickstart(root, config = config_dict_final)
 
         if test:
 
@@ -455,7 +456,7 @@ class LineReplacement:
         return input
         
 class CMS:
-    """CMS base class and root of the CherryPy site.
+    """CMS base class and root of a CherryPy site.
 
        Attributes:
 
