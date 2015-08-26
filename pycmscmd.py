@@ -23,6 +23,7 @@ import pycms
 import cmd
 import glob
 import os.path
+import json
 
 # http://bugs.python.org/issue15074
 import readline
@@ -107,6 +108,28 @@ htmlroot = {}""".format(self.instance.htmlroot)
 
         return False
 
+    def do_list(self, arg):
+        """Print a list of registeres URIs and associated templates.
+        """
+
+        # TODO: Taken from Instance.create_page. Instead, the instance should provide a method to get the list.
+
+        uri_map_dict = {}
+
+        with open(os.path.join(self.instance.htmlroot, '_uri_template_map.json'), "rt", encoding = "utf8") as uri_map_file:
+
+            uri_map_dict = json.loads(uri_map_file.read())
+
+        uris = list(uri_map_dict.keys())
+
+        uris.sort()
+
+        for uri in uris:
+
+            print("{0}    [{1}]".format(uri, uri_map_dict[uri]))
+
+        return False
+
     # End pycms.Instance method dispatchers
 
     def completedefault(self, text, line, begidx, endidx):
@@ -172,7 +195,7 @@ def main():
     # # Originally taken from bbk3.run
 
     parser = optparse.OptionParser(version = pycms.VERSION,
-                                   usage = "Usage: %prog [options] htmlroot")
+                                   usage = "Usage: %prog [options] htmlroot [command [arguments]]")
 
     # parser.add_option("-p", "--port",
     #                   action = "store",
