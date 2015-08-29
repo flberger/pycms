@@ -53,6 +53,12 @@ class Instance:
 
         self.htmlroot = htmlroot
 
+        if htmlroot[-1] == "/":
+
+            # Normalise
+            #
+            self.htmlroot = htmlroot[:-1]
+
         return
 
     def envinit(self):
@@ -161,13 +167,13 @@ class Instance:
 
         uri_map_dict = {}
 
-        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "rt", encoding = "utf8") as uri_map_file:
+        with open(os.path.join(self.htmlroot, "_uri_template_map.json"), "rt", encoding = "utf8") as uri_map_file:
 
             uri_map_dict = json.loads(uri_map_file.read())
 
         uri_map_dict["/{}".format(uri.strip("/"))] = template
 
-        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "wt", encoding = "utf8") as uri_map_file:
+        with open(os.path.join(self.htmlroot, "_uri_template_map.json"), "wt", encoding = "utf8") as uri_map_file:
 
             uri_map_file.write(json.dumps(uri_map_dict,
                                           sort_keys = True,
@@ -192,7 +198,7 @@ class Instance:
         #
         # NOTE: Not using os.path as glob uses Unix shell syntax
         #
-        template_backups = glob.glob("{}/_templates/*.old".format(self.htmlroot))
+        template_backups = glob.glob("/".join((self.htmlroot, TEMPLATES_FOLDER, "*.old")))
 
         sys.stderr.write("template_backups == {}\n".format(template_backups))
 
@@ -205,7 +211,7 @@ class Instance:
 
         uri_map_dict = {}
 
-        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "rt", encoding = "utf8") as uri_map_file:
+        with open(os.path.join(self.htmlroot, "_uri_template_map.json"), "rt", encoding = "utf8") as uri_map_file:
 
             uri_map_dict = json.loads(uri_map_file.read())
 
@@ -223,6 +229,12 @@ class Instance:
 
                 template_map_dict[uri_map_dict[uri]] = [uri]
 
+        # For predictability, sort the URI lists
+        #
+        for template in template_map_dict.keys():
+
+            template_map_dict[template].sort()
+
         sys.stderr.write("template_map_dict == {}\n".format(template_map_dict))
 
         # There are two ways to do this: replay the template changes in
@@ -234,7 +246,7 @@ class Instance:
 
             for uri in template_map_dict[template]:
 
-                sys.stderr.write("About to update '{}'\n".format(uri))
+                sys.stderr.write("About to update '{}' using template '{}'\n".format(uri, template))
 
                 page_replacements = None
 
@@ -300,13 +312,13 @@ class Instance:
 
         uri_map_dict = {}
 
-        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "rt", encoding = "utf8") as uri_map_file:
+        with open(os.path.join(self.htmlroot, "_uri_template_map.json"), "rt", encoding = "utf8") as uri_map_file:
 
             uri_map_dict = json.loads(uri_map_file.read())
 
         del uri_map_dict["/{}".format(uri.strip("/"))]
 
-        with open(os.path.join(self.htmlroot, '_uri_template_map.json'), "wt", encoding = "utf8") as uri_map_file:
+        with open(os.path.join(self.htmlroot, "_uri_template_map.json"), "wt", encoding = "utf8") as uri_map_file:
 
             uri_map_file.write(json.dumps(uri_map_dict,
                                           sort_keys = True,
@@ -388,7 +400,7 @@ class Instance:
         # NOTE: Start up web server here
         # cherrypy.quickstart(root, config = config_dict_final)
 
-        sys.stderr.write("Serving HTTP on port 8000")
+        sys.stderr.write("Serving HTTP on port 8000\n")
         
         httpd.serve_forever()
 
@@ -472,7 +484,9 @@ class LineReplacement:
 
                 else:
 
-                    raise RuntimeError("Source and result lines do not match when they should: '{}' vs. '{}'".format(separator[0], result_split[0]))
+                    # TODO: This can only be recovered from when changing the *.old backup files. These should be deleted, i.e. editing the affected templates should probably be aborted.
+                    #
+                    raise RuntimeError("Source and result lines do not match when they should: '{}' vs. '{}'\n(Hint: The source line is not a valid placeholder, if that was intended.)".format(separator[0], result_split[0]))
 
             # Remove the emptied list
             #
