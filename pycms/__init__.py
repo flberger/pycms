@@ -30,6 +30,12 @@ import re
 
 VERSION = "0.1.0"
 
+TEMPLATES_FOLDER = "_templates"
+
+STATIC_FOLDER = "static"
+
+SPECIAL_FOLDERS = (TEMPLATES_FOLDER, STATIC_FOLDER)
+
 CONFIG_DICT = {}
 
 class Instance:
@@ -74,9 +80,9 @@ class Instance:
     </html>
     ''')
 
-        os.mkdir(os.path.join(self.htmlroot, "_templates"))
+        os.mkdir(os.path.join(self.htmlroot, TEMPLATES_FOLDER))
 
-        with open(os.path.join(self.htmlroot, "_templates", "index_template.html"), "wt", encoding = "utf8") as templatefile:
+        with open(os.path.join(self.htmlroot, TEMPLATES_FOLDER, "index_template.html"), "wt", encoding = "utf8") as templatefile:
 
             templatefile.write('''<!DOCTYPE html>
     <html>
@@ -97,6 +103,24 @@ class Instance:
             mapfile.write(json.dumps({"/": "index_template.html"},
                                      ensure_ascii = False))
 
+        os.mkdir(os.path.join(self.htmlroot, STATIC_FOLDER))
+        
+        with open(os.path.join(self.htmlroot, STATIC_FOLDER, "index.html"), "wt", encoding = "utf8") as htmlfile:
+
+            htmlfile.write('''<!DOCTYPE html>
+    <html>
+    <meta charset="utf-8"/>
+    <head>
+        <title>
+    Forbidden
+        </title>
+    </head>
+    <body>
+        <p>You do not have access to this directory.</p>
+    </body>
+    </html>
+    ''')
+
         return
         
     def create_page(self, uri, template):
@@ -107,9 +131,15 @@ class Instance:
 
             raise RuntimeError("The URI parameter must start with a slash.")
 
+        components = uri.strip("/").split("/")
+
+        if components[0] in SPECIAL_FOLDERS:
+
+            raise RuntimeError('"/{}/" is a special URI and can not be re-created.'.format(components[0]))
+
         path = [self.htmlroot]
 
-        path += [component for component in uri.strip("/").split("/")]
+        path += components
 
         path_with_index = path + ["index.html"]
         
@@ -120,14 +150,14 @@ class Instance:
                 raise RuntimeError('URI "{}" can not be created because "{}" already exists.'.format(uri, os.path.join(*path_with_index)))
 
         else:
-        
+
             if os.path.exists(os.path.join(*path)):
 
                 raise RuntimeError('URI "{}" can not be created because "{}" already exists.'.format(uri, os.path.join(*path)))
 
             os.makedirs(os.path.join(*path))
 
-        shutil.copy(os.path.join(self.htmlroot, "_templates", template), os.path.join(*path_with_index))
+        shutil.copy(os.path.join(self.htmlroot, TEMPLATES_FOLDER, template), os.path.join(*path_with_index))
 
         uri_map_dict = {}
 
@@ -149,8 +179,8 @@ class Instance:
         """Create a backup of `template` in `htmlroot`, as a preparation for a template update.
         """
 
-        shutil.copy(os.path.join(self.htmlroot, "_templates", template),
-                    os.path.join(self.htmlroot, "_templates", template + ".old"))
+        shutil.copy(os.path.join(self.htmlroot, TEMPLATES_FOLDER, template),
+                    os.path.join(self.htmlroot, TEMPLATES_FOLDER, template + ".old"))
 
         return
 
@@ -208,7 +238,7 @@ class Instance:
 
                 page_replacements = None
 
-                with open(os.path.join(self.htmlroot, "_templates", template + ".old"), "rt", encoding = "utf8") as original_template:
+                with open(os.path.join(self.htmlroot, TEMPLATES_FOLDER, template + ".old"), "rt", encoding = "utf8") as original_template:
 
                     with open(os.path.join(*[self.htmlroot] + uri.split("/") + ["index.html"]), "rt", encoding = "utf8") as page:
 
@@ -218,7 +248,7 @@ class Instance:
                         page_replacements = LineReplacement(original_template.read(),
                                                             page.read())
 
-                with open(os.path.join(self.htmlroot, "_templates", template), "rt", encoding = "utf8") as new_template:
+                with open(os.path.join(self.htmlroot, TEMPLATES_FOLDER, template), "rt", encoding = "utf8") as new_template:
 
                     with open(os.path.join(*[self.htmlroot] + uri.split("/") + ["index.html"]), "wt", encoding = "utf8") as page:
 
@@ -229,7 +259,7 @@ class Instance:
 
             # Delete template backup
             #
-            os.remove(os.path.join(self.htmlroot, "_templates", template + ".old"))
+            os.remove(os.path.join(self.htmlroot, TEMPLATES_FOLDER, template + ".old"))
 
         return
 
@@ -252,11 +282,16 @@ class Instance:
 
         else:
 
+            components = uri.strip("/").split("/")
+
+            if components[0] in SPECIAL_FOLDERS:
+
+                raise RuntimeError('"/{}/" is a special URI and can not be removed.'.format(components[0]))
+
             path = [self.htmlroot]
 
-            path += [component for component in uri.strip("/").split("/")]
+            path += components
 
-            #!!!
             if not os.path.exists(os.path.join(*path)):
 
                 raise RuntimeError('URI "{}" can not be removed because "{}" does not exist.'.format(uri, os.path.join(*path)))

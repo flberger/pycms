@@ -52,7 +52,7 @@ There now is a basic environment to work with. Let's take a look:
     >>> files = glob.glob("pycmsroot/*")
     >>> files.sort()
     >>> files
-    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html']
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html', 'pycmsroot/static']
     >>> glob.glob("pycmsroot/_templates/*")
     ['pycmsroot/_templates/index_template.html']
     >>>
@@ -241,7 +241,7 @@ On disk, the directory and the index page will be removed:
     >>> files = glob.glob("pycmsroot/*")
     >>> files.sort()
     >>> files
-    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html']
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/index.html', 'pycmsroot/static']
 
 The URI will also be removed from the template-URI map.
 
@@ -268,15 +268,15 @@ root directory.
     >>> files = glob.glob("pycmsroot/*")
     >>> files.sort()
     >>> files
-    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json']
+    ['pycmsroot/_templates', 'pycmsroot/_uri_template_map.json', 'pycmsroot/static']
     >>> 
 
 This of course is a state one would not want to keep.
 
     >>> instance.create_page("/", "index_template.html")
     >>>
-
     
+
 Running the pycms web server
 ----------------------------
 
@@ -313,6 +313,39 @@ created by pycms.envinit() above.
 
     >>> dummy_cms()
     '<!DOCTYPE html>\n    <html>\n    <meta charset="utf-8"/>\n    <head>\n        <title>\n            TITLE\n        </title>\n    </head>\n    <body>\n    CONTENT\n    </body>\n    </html>\n    '
+    >>>
+
+
+Static content and special directories
+--------------------------------------
+
+There is a folder 'static' below the pycms root directory where you
+can store static content. It can neither be removed nor re-created.
+
+    >>> instance.remove_page("/static")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: "/static/" is a special URI and can not be removed.
+    >>>
+
+    >>> instance.create_page("/static", "new_template.html")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: "/static/" is a special URI and can not be re-created.
+    >>>
+
+The same goes for the '_templates' folder.
+
+    >>> instance.remove_page("/_templates")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: "/_templates/" is a special URI and can not be removed.
+    >>>
+
+    >>> instance.create_page("/_templates", "new_template.html")
+    Traceback (most recent call last):
+    ...
+    RuntimeError: "/_templates/" is a special URI and can not be re-created.
     >>>
 
 
